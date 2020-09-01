@@ -7,6 +7,14 @@ services:
     environment:
       RAILS_ENV:
       DATABASE_HOST: db
+      SETTINGS__SMTP__ADDRESS: smtp.mandrillapp.com
+      SETTINGS__SMTP__DOMAIN: domain
+      SETTINGS__SMTP__USER_NAME: email
+      SETTINGS__SMTP__PASSWORD: api-key
+      SETTINGS__SMTP__HOST: localhost:3000
+      SETTINGS__SMTP__DEFAULT_FROM: notifications@example.org
+      DEVISE_EMAIL: notifications@example.org
+      DEVISE_CONFIRMABLE: 'true'
     working_dir: /app
     volumes:
       - .:/app
@@ -15,7 +23,7 @@ services:
     depends_on:
       - db
     ports:
-      - 80
+      - 80:80
 
   db:
     image: mysql:5.6
