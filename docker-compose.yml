@@ -1,20 +1,26 @@
 version: '2.0'
 
 services:
+  smtp:
+    image: 'djfarrelly/maildev:latest'
+    command: 'bin/maildev --web 3080 --smtp 1025 --incoming-user smtp --incoming-pass smtp'
+    ports:
+      - '3080:3080'
+
   web:
     image: ruby:2.3
     command: rails server -b 0.0.0.0 -p 80
     environment:
       RAILS_ENV:
       DATABASE_HOST: db
-      SETTINGS__SMTP__ADDRESS: smtp.mandrillapp.com
-      SETTINGS__SMTP__DOMAIN: domain
-      SETTINGS__SMTP__USER_NAME: email
-      SETTINGS__SMTP__PASSWORD: api-key
-      SETTINGS__SMTP__HOST: localhost:3000
-      SETTINGS__SMTP__DEFAULT_FROM: notifications@example.org
-      DEVISE_EMAIL: notifications@example.org
+      DEVISE_EMAIL: notifications@ilabsea.org
       DEVISE_CONFIRMABLE: 'true'
+      SETTINGS__SMTP__ADDRESS: smtp
+      SETTINGS__SMTP__DOMAIN: domain
+      SETTINGS__SMTP__USER_NAME: smtp
+      SETTINGS__SMTP__PASSWORD: smtp
+      SETTINGS__SMTP__PORT: 1025
+      SETTINGS__SMTP__HOST: localhost:3000
     working_dir: /app
     volumes:
       - .:/app
@@ -22,6 +28,7 @@ services:
     tmpfs: /app/tmp
     depends_on:
       - db
+      - smtp
     ports:
       - 80:80
 

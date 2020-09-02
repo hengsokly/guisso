@@ -65,18 +65,23 @@ Guisso::Application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_url_options = { host: ENV['SETTINGS__SMTP__HOST'] }
-  config.action_mailer.default_options = { from: ENV['SETTINGS__SMTP__DEFAULT_FROM'] }
-  config.action_mailer.smtp_settings = {
-    address: ENV['SETTINGS__SMTP__ADDRESS'],
-    port: ENV.fetch('SETTINGS__SMTP__PORT') { 25 },
-    authentication: ENV.fetch('SETTINGS__SMTP__AUTHENTICATION') { 'plain' },
-    enable_starttls_auto: ENV.fetch('SETTINGS__SMTP__ENABLE__STARTTLS__AUTO') { true },
-    user_name: ENV['SETTINGS__SMTP__USER_NAME'],
-    password: ENV['SETTINGS__SMTP__PASSWORD'],
-    domain: ENV['SETTINGS__SMTP__DOMAIN']
-  }
+  config.action_mailer.default_url_options = { :host => Settings.host }
+
+  if Settings.smtp.present?
+    smtp_settings = {}.tap do |settings|
+      settings[:address]              = Settings.smtp["address"] if Settings.smtp["address"].present?
+      settings[:port]                 = Settings.smtp["port"] if Settings.smtp["port"].present?
+      settings[:domain]               = Settings.smtp["domain"] if Settings.smtp["domain"].present?
+      settings[:user_name]            = Settings.smtp["user_name"] if Settings.smtp["user_name"].present?
+      settings[:password]             = Settings.smtp["password"] if Settings.smtp["password"].present?
+      settings[:authentication]       = Settings.smtp["authentication"] if Settings.smtp["authentication"].present?
+      settings[:enable_starttls_auto] = Settings.smtp["enable_starttls_auto"] if Settings.smtp["enable_starttls_auto"].present?
+    end
+    if smtp_settings.present?
+      config.action_mailer.delivery_method = :smtp
+      config.action_mailer.smtp_settings = smtp_settings
+    end
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation can not be found).
